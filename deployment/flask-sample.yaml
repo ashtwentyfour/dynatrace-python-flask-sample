@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: flask-sample
+  name: flask-sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-sample
+  template:
+    metadata:
+      labels:
+        app: flask-sample
+    spec:
+      containers:
+      - image: ashbourne1990/python-flask-sample:latest
+        name: flask-sample
+        env:
+        - name: DT_CUSTOM_PROP
+          value: "ENVIRONMENT=Dev APP=flask-sample"
+        ports:
+        - name: api-port
+          containerPort: 8080
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          failureThreshold: 1
+          periodSeconds: 10
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          failureThreshold: 30
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
